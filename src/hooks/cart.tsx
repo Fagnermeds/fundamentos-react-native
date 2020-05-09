@@ -30,23 +30,84 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const getProducts = await AsyncStorage.getItem('@GoMarketPlace:products');
+
+      if (getProducts) {
+        setProducts(JSON.parse(getProducts));
+      }
     }
 
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  const addToCart = useCallback(
+    async product => {
+      const findProduct = products.find(item => item.id === product.id);
 
-  const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+      if (findProduct) {
+        setProducts(
+          products.map(item => {
+            if (item.id === findProduct.id) {
+              // eslint-disable-next-line no-param-reassign
+              return { ...item, quantity: item.quantity + 1 };
+            }
 
-  const decrement = useCallback(async id => {
-    // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+            return item;
+          }),
+        );
+      } else {
+        setProducts([...products, { ...product, quantity: 1 }]);
+      }
+
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(products),
+      );
+    },
+    [products],
+  );
+
+  const increment = useCallback(
+    async id => {
+      setProducts(
+        products.map(item => {
+          if (item.id === id) {
+            // eslint-disable-next-line no-param-reassign
+            return { ...item, quantity: item.quantity + 1 };
+          }
+
+          return item;
+        }),
+      );
+
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(products),
+      );
+    },
+    [products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      setProducts(
+        products.map(item => {
+          if (item.id === id && item.quantity > 0) {
+            // eslint-disable-next-line no-param-reassign
+            return { ...item, quantity: item.quantity - 1 };
+          }
+
+          return item;
+        }),
+      );
+
+      await AsyncStorage.setItem(
+        '@GoMarketPlace:products',
+        JSON.stringify(products),
+      );
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),
