@@ -40,6 +40,19 @@ const CartProvider: React.FC = ({ children }) => {
     loadProducts();
   }, []);
 
+  const updateAsyncStorage = useCallback(async (): Promise<void> => {
+    await AsyncStorage.clear();
+
+    await AsyncStorage.setItem(
+      '@GoMarketPlace:products',
+      JSON.stringify(products),
+    );
+  }, [products]);
+
+  useEffect(() => {
+    updateAsyncStorage();
+  }, [updateAsyncStorage]);
+
   const addToCart = useCallback(
     async product => {
       const findProduct = products.find(item => item.id === product.id);
@@ -48,7 +61,6 @@ const CartProvider: React.FC = ({ children }) => {
         setProducts(
           products.map(item => {
             if (item.id === findProduct.id) {
-              // eslint-disable-next-line no-param-reassign
               return { ...item, quantity: item.quantity + 1 };
             }
 
@@ -72,7 +84,6 @@ const CartProvider: React.FC = ({ children }) => {
       setProducts(
         products.map(item => {
           if (item.id === id) {
-            // eslint-disable-next-line no-param-reassign
             return { ...item, quantity: item.quantity + 1 };
           }
 
