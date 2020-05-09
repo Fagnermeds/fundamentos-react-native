@@ -49,10 +49,6 @@ const CartProvider: React.FC = ({ children }) => {
     );
   }, [products]);
 
-  useEffect(() => {
-    updateAsyncStorage();
-  }, [updateAsyncStorage]);
-
   const addToCart = useCallback(
     async product => {
       const findProduct = products.find(item => item.id === product.id);
@@ -71,12 +67,9 @@ const CartProvider: React.FC = ({ children }) => {
         setProducts([...products, { ...product, quantity: 1 }]);
       }
 
-      await AsyncStorage.setItem(
-        '@GoMarketPlace:products',
-        JSON.stringify(products),
-      );
+      updateAsyncStorage();
     },
-    [products],
+    [products, updateAsyncStorage],
   );
 
   const increment = useCallback(
@@ -91,12 +84,9 @@ const CartProvider: React.FC = ({ children }) => {
         }),
       );
 
-      await AsyncStorage.setItem(
-        '@GoMarketPlace:products',
-        JSON.stringify(products),
-      );
+      updateAsyncStorage();
     },
-    [products],
+    [products, updateAsyncStorage],
   );
 
   const decrement = useCallback(
@@ -104,7 +94,6 @@ const CartProvider: React.FC = ({ children }) => {
       setProducts(
         products.map(item => {
           if (item.id === id && item.quantity > 0) {
-            // eslint-disable-next-line no-param-reassign
             return { ...item, quantity: item.quantity - 1 };
           }
 
@@ -112,12 +101,9 @@ const CartProvider: React.FC = ({ children }) => {
         }),
       );
 
-      await AsyncStorage.setItem(
-        '@GoMarketPlace:products',
-        JSON.stringify(products),
-      );
+      updateAsyncStorage();
     },
-    [products],
+    [products, updateAsyncStorage],
   );
 
   const value = React.useMemo(
